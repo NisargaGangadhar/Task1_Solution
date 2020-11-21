@@ -1,0 +1,89 @@
+---
+title: "Task 1 - Prediction using Supervised ML"
+author: "Nisarga Gangadhar"
+date: "11/21/2020"
+output: word_document
+---
+
+Import Data:
+The dataset is imported with the help of the link given in description. The dataset has two columns "Hours" and "Scores" and 25 records/rows. First few records can be seen using function head.
+```{r}
+data = read.csv(url("http://bit.ly/w-data"))
+dim(data)
+head(data)
+```
+
+Correlation between variables:
+We can see that the correlation between the variables is 0.97 which means there is a strong relationship between Hours of study and Scores.
+```{r}
+cor(data)
+```
+
+Linear relationship:
+We can observe from the plot that the points form a line which means that there is positive linear relationship between Scores and Hours which means as the Hours of study increases Scores of that individual also increases and vice-versa.
+```{r}
+plot(data$Hours,data$Scores,main = "Linear relationship between variables",xlab = "Hours",ylab = "Scores",col="Red")
+```
+
+Density plot:
+With the help of density plot we can find if the data is normally distributed or not.The density plot of both the variables say that the data is normally distributed and there is no needed to scale the data. The density plot of both variables is bimodal which means there are two peaks in the plot.
+```{r}
+plot(density(data$Hours))
+plot(density(data$Scores))
+```
+
+Splitting the data into train and test:
+I have splitted the data into 70% of training and 30% of testing.The seed is set in order to retain the same split everytime.
+```{r}
+set.seed(100)
+row.number <- sample(1:nrow(data), 0.7*nrow(data))
+train = data[row.number,]
+test = data[-row.number,]
+dim(train)
+dim(test)
+```
+
+Training the model:
+From the coefficients in the model summary we can say that, With zero hours of study the student is able to score 5.10 and for every hour added to study the student score increases by 9.28. The pvalue of variable "Hours" is lesser than 0.05 which means that it significantly makes difference in predicting scores.
+```{r}
+#fit simple linear regression
+model <- lm(Scores ~ Hours , data = train)
+summary(model)
+plot(model)
+```
+
+Plot the fit:
+```{r}
+library(ggplot2)
+ggplot(data, aes(Hours, Scores)) +geom_point() + stat_smooth(method = lm)
+```
+
+Predicting the test data:
+```{r}
+pred1 <- predict(model, newdata = test)
+pred1
+```
+Predicting the score for 9.25 hours of study:
+This is the main purpose of this task and my model gives the prediction as , if an individual studies for 9.25 hours, they can score 90.95 approximately.
+```{r}
+#predict score for 9.25
+f<-data.frame(Hours=c(9.25))
+pred <- predict(model, newdata = f)
+pred
+```
+
+Mean Absolute error:
+MAE is 3.08 which is not bad. 
+```{r}
+len=length(pred1)
+count=0
+for(i in 1:5){
+  n=0
+  n = pred1[i]-test$Scores[i]
+  count = count + n
+}
+count/5
+```
+
+
+
